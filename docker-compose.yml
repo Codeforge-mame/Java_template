@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: production_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: engine_user
+      POSTGRES_PASSWORD: UltimateSecretPassword999
+      POSTGRES_DB: core_prod_db
+    volumes:
+      - pg_data_volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U engine_user -d core_prod_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: production_redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass TopSecretRedisTokenPass123
+    volumes:
+      - redis_data_volume:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "TopSecretRedisTokenPass123", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pg_data_volume:
+  redis_data_volume:
